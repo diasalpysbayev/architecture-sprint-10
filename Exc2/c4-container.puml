@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Container>
+
+System_Boundary(system, "Корпоративная IT-система") {
+    Container_Boundary(user_apps, "Пользовательские приложения") {
+        Container(WebApp, "Веб-приложение", "React + Node.js", "Интерфейс для работы с конфиденциальными данными")
+        Container(MobileApp, "Мобильное приложение", "Flutter", "Доступ к данным через API")
+    }
+
+    Container(API, "API-шлюз", "Kong API Gateway", "Обеспечивает доступ и контроль запросов к сервисам")
+    Container(DB, "База данных", "PostgreSQL", "Хранение обработанных и анонимизированных данных")
+    Container(DataLake, "Data Lake", "AWS S3", "Сырой сбор данных перед обработкой")
+    Container(AnonymizationService, "Сервис анонимизации", "Java + Spring", "Обфускация и обезличивание данных")
+    Container(AccessControl, "Управление доступом", "Keycloak", "RBAC и OAuth2 авторизация")
+}
+
+WebApp --> API : "Запрос данных"
+MobileApp --> API : "Запрос данных"
+API --> AnonymizationService : "Обработка и обезличивание данных"
+AnonymizationService --> DB : "Запись обезличенных данных"
+DataLake --> AnonymizationService : "Передача сырых данных"
+API --> AccessControl : "Авторизация и контроль доступа"
+AccessControl --> API : "Выдача токена доступа"
+@enduml
